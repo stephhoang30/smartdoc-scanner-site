@@ -1,0 +1,36 @@
+SmartDoc Scanner cho Windows x64 • 1.0.26-preview.1
+
+Cài đặt
+
+Mở tệp có đuôi -setup.exe trên máy Windows 64-bit. Sau khi cài, mở
+SmartDoc Scanner từ Start. Bộ cài đã kèm .NET. Nếu dùng bản portable,
+hãy giải nén toàn bộ ZIP rồi mở SmartDocScanner.exe.
+
+Chuyển lô từ máy Mac
+
+Trên Mac, xuất ZIP của từng ngày rồi chép các ZIP sang máy Windows.
+Cũng có thể chép các thư mục lô có sẵn PDF. Giữ nguyên tên lô cũ
+(ví dụ 4.11.26am, 4.11.26pm) để SmartDoc nhận ra cùng ngày 04.11.26.
+Trên Windows, bấm “Nhập dữ liệu cũ…” và chọn thư mục chứa các lô.
+Để xem nhanh một tệp, bấm “Mở ZIP…”. Chọn ngày, mở hồ sơ rồi chọn GCN
+hoặc GT để xem các trang. Khi có cảnh báo tên sai, bấm “Sửa tên…” rồi
+đối chiếu seri trên bìa. Phần mềm sửa bản trong thư viện và giữ bản nguồn.
+
+Quét và xuất
+
+Bấm “Thêm file…” để bắt đầu bằng PDF hoặc ảnh đã lưu từ máy quét.
+Bấm “Camera…” để chụp trực tiếp từ camera Windows nhận được. Nếu Windows
+hỏi quyền camera, chọn thiết bị bạn muốn dùng. Đối chiếu gợi ý seri với
+bìa GCN rồi xác nhận. Có thể gõ seri khi ảnh mờ hoặc không có gợi ý.
+Chọn GT để thêm trang giấy tờ vào cùng hồ sơ.
+
+Bấm “Thư mục xuất…” để chọn nơi lưu. Chọn ngày rồi bấm “Xuất ngày”.
+SmartDoc gom các lô sáng, chiều vào một ZIP có tên ngày. Thư viện hồ sơ
+nằm trong %LOCALAPPDATA%\SmartDocScanner của tài khoản Windows đang dùng.
+
+Phạm vi bản thử
+
+Bản thử dựa trên SmartDoc Scanner macOS 1.0.26. Dùng ZIP hoặc PDF để
+chuyển hồ sơ đã xuất giữa hai máy. Camera iPhone qua Continuity và tải
+lên Google Drive từ trong app là các chức năng của bản Mac. Bộ cài Windows
+chưa ký số. Giao diện và camera đang chờ kiểm tra trên máy Windows thật.

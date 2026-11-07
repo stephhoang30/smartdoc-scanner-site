@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartDoc Scanner</title>
+<meta name="description" content="App quét hồ sơ đất đai cho Mac và Windows. iPhone làm camera, tự đặt tên theo số seri GCN, xuất PDF và ZIP đúng chuẩn lô. Mọi xử lý chạy trên máy.">
+<!--
+  Landing page tĩnh. Cách phát hành:
+  1. Chép file tải về vào site/downloads/ (xem danh sách trong khối DOWNLOADS bên dưới).
+  2. Đưa toàn bộ thư mục site/ lên host tĩnh bất kỳ (GitHub Pages, Netlify, S3, Nginx).
+  Khi lên bản mới chỉ cần sửa khối DOWNLOADS, phần còn lại tự cập nhật.
+-->
+<style>
+  :root{
+    --bg:#f6f4ee; --surface:#ffffff; --surface-2:#eeeae0; --text:#1b1a17; --muted:#5f5b52;
+    --line:#dcd6c8; --accent:#0f6e56; --accent-ink:#ffffff; --accent-soft:#d7eee6;
+    --warn:#8a5a00; --warn-soft:#fff1cc; --shadow:0 1px 2px rgba(0,0,0,.06),0 12px 32px -16px rgba(0,0,0,.25);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121311; --surface:#1b1d1a; --surface-2:#242622; --text:#eeeae0; --muted:#a7a295;
+      --line:#2f322d; --accent:#4fc2a0; --accent-ink:#0c1f19; --accent-soft:#143328;
+      --warn:#e5b35a; --warn-soft:#2e2510; --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -16px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121311; --surface:#1b1d1a; --surface-2:#242622; --text:#eeeae0; --muted:#a7a295;
+    --line:#2f322d; --accent:#4fc2a0; --accent-ink:#0c1f19; --accent-soft:#143328;
+    --warn:#e5b35a; --warn-soft:#2e2510; --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -16px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+  header.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;text-decoration:none;letter-spacing:-.01em}
+  .brand .logo{width:30px;height:30px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
+  nav a{text-decoration:none;color:var(--muted);font-size:14.5px;margin-left:18px}
+  nav a:hover{color:var(--text)}
+  nav a.cta{color:var(--accent);font-weight:600}
+  @media (max-width:640px){nav a:not(.cta){display:none}}
+
+  .hero{padding:72px 0 40px;text-align:center}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:999px}
+  .hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;letter-spacing:-.03em;margin:22px 0 16px}
+  .hero p.lead{font-size:clamp(17px,2.2vw,21px);color:var(--muted);max-width:680px;margin:0 auto 32px}
+  .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);background:var(--surface);transition:transform .12s ease,box-shadow .12s ease}
+  .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+  .btn svg{width:20px;height:20px;flex:none}
+  .hero .fineprint{margin-top:14px;font-size:13.5px;color:var(--muted)}
+
+  .mock{margin:44px auto 0;max-width:880px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;text-align:left}
+  .mock .bar{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  .mock .bar i{width:10px;height:10px;border-radius:50%;background:var(--line);display:block}
+  .mock .body{display:grid;grid-template-columns:200px 1fr;min-height:260px}
+  .mock .side{border-right:1px solid var(--line);padding:14px;font-size:13px}
+  .mock .side .day{font-weight:700;margin-bottom:8px}
+  .mock .side .row{display:flex;justify-content:space-between;padding:7px 8px;border-radius:8px;color:var(--muted)}
+  .mock .side .row.on{background:var(--accent-soft);color:var(--text)}
+  .mock .side .row b{font-weight:600;color:var(--text)}
+  .mock .main{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+  .mock .pill{align-self:flex-start;font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px}
+  .mock .file{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px}
+  .mock .pages{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:460px}
+  .mock .page{aspect-ratio:3/4;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;position:relative;overflow:hidden}
+  .mock .page::before{content:"";position:absolute;inset:14% 16% auto 16%;height:6px;border-radius:3px;background:var(--line)}
+  .mock .page::after{content:"";position:absolute;inset:30% 16% 18% 16%;background:repeating-linear-gradient(to bottom,var(--line) 0 3px,transparent 3px 10px);opacity:.8}
+  .mock .page.cover::before{background:var(--accent);height:8px}
+  .mock .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+  .mock .actions span{font-size:12.5px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;color:var(--muted)}
+  .mock .actions span.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+  @media (max-width:640px){.mock .body{grid-template-columns:1fr}.mock .side{display:none}}
+
+  section{padding:64px 0}
+  section h2{font-size:clamp(26px,3.6vw,36px);letter-spacing:-.02em;margin:0 0 10px}
+  section p.sub{color:var(--muted);margin:0 0 32px;max-width:640px}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .card .ic{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin-bottom:14px}
+  .card h3{margin:0 0 6px;font-size:17px}
+  .card p{margin:0;color:var(--muted);font-size:15px}
+
+  .steps{counter-reset:s;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .step{position:relative;padding:22px 22px 22px 22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+  .step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;margin-bottom:12px}
+  .step h3{margin:0 0 6px;font-size:16.5px}
+  .step p{margin:0;color:var(--muted);font-size:15px}
+
+  #download{background:var(--surface-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .dl{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .dl .card{display:flex;flex-direction:column;gap:12px}
+  .dl .head{display:flex;align-items:center;gap:12px}
+  .dl .head svg{width:28px;height:28px}
+  .dl .head h3{margin:0;font-size:19px}
+  .dl .head small{display:block;color:var(--muted);font-weight:500;font-size:13px}
+  .dl ul{list-style:none;padding:0;margin:0;color:var(--muted);font-size:14.5px}
+  .dl li{padding:4px 0;display:flex;gap:8px;align-items:flex-start}
+  .dl li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;margin-top:9px}
+  .dl .btns{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .dl .btn{justify-content:space-between}
+  .dl .btn small{font-weight:500;opacity:.8;font-size:13px}
+  .note{display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);color:var(--text);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:18px}
+  .note svg{width:18px;height:18px;flex:none;margin-top:2px;color:var(--warn)}
+  .sha{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--muted);word-break:break-all}
+
+  details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 18px;margin-bottom:10px}
+  summary{cursor:pointer;padding:16px 0;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--muted);font-weight:400;font-size:20px}
+  details[open] summary::after{content:"–"}
+  details p{margin:0 0 16px;color:var(--muted);font-size:15px}
+
+  footer{padding:36px 0 48px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#">
+      <span class="logo" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M3 12h18"/></svg>
+      </span>
+      SmartDoc Scanner
+    </a>
+    <nav>
+      <a href="#features">Tính năng</a>
+      <a href="#how">Cách dùng</a>
+      <a href="#faq">Hỏi đáp</a>
+      <a class="cta" href="#download">Tải về</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">Phiên bản <span data-version>1.0.26</span> · macOS và Windows</span>
+      <h1>Quét hồ sơ đất đai,<br>tên file tự đúng ngay sau khi quét</h1>
+      <p class="lead">SmartDoc Scanner thay CamScanner cho công việc quét GCN và căn cước hằng ngày. Dùng iPhone làm camera, đọc số seri trên bìa GCN để đặt tên, gom lô theo ngày và xuất PDF, ZIP đúng chuẩn đang dùng. Mọi xử lý tài liệu chạy trên máy của bạn.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#download" data-dl="mac-dmg">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c0-2.3 1.9-3.4 1.98-3.45a4.4 4.4 0 0 0-3.37-1.83c-1.43-.15-2.8.84-3.52.84-.73 0-1.85-.82-3.05-.8a4.6 4.6 0 0 0-3.9 2.37c-1.66 2.88-.42 7.14 1.19 9.47.79 1.14 1.73 2.42 2.96 2.38 1.19-.05 1.64-.77 3.07-.77s1.84.77 3.1.74c1.28-.02 2.09-1.16 2.87-2.3a10 10 0 0 0 1.3-2.68c-.03-.01-2.63-1.02-2.63-3.97ZM14.1 5.8A4.1 4.1 0 0 0 15.04 2.8a4.2 4.2 0 0 0-2.75 1.42 3.9 3.9 0 0 0-.97 2.9c1.06.08 2.14-.54 2.78-1.32Z"/></svg>
+          Tải cho macOS
+        </a>
+        <a class="btn" href="#download" data-dl="win-setup">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 11 4.4v7.1H3V5.5Zm0 13L11 19.6v-7H3v5.9Zm9-14.3L21 3v8.5h-9V4.2Zm0 8.3h9V21l-9-1.3v-7.2Z"/></svg>
+          Tải cho Windows
+        </a>
+      </div>
+      <p class="fineprint">macOS 14 trở lên trên Mac Apple silicon · Windows 10/11 64-bit · Miễn phí cho nội bộ</p>
+
+      <div class="mock" aria-hidden="true">
+        <div class="bar"><i></i><i></i><i></i></div>
+        <div class="body">
+          <div class="side">
+            <div class="day">06.11.26</div>
+            <div class="row on"><b>AB 123456</b><span>GCN · GT</span></div>
+            <div class="row"><b>AC 220118</b><span>GCN · GT</span></div>
+            <div class="row"><b>DB 004271</b><span>GCN</span></div>
+            <div class="row"><b>AB 998002</b><span>Chờ GCN</span></div>
+          </div>
+          <div class="main">
+            <span class="pill">Đã đọc seri từ trang 1</span>
+            <div class="file">AB 123456-GCN.pdf</div>
+            <div class="pages"><div class="page cover"></div><div class="page"></div><div class="page"></div><div class="page"></div></div>
+            <div class="actions"><span class="on">Quét GT</span><span>Thêm từ file…</span><span>Xoay</span><span>Cắt lại</span><span>Xuất ngày</span><span>Tải Drive</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>Làm đúng việc đang làm mỗi ngày, bớt thao tác tay</h2>
+      <p class="sub">Không đổi quy trình, không đổi tên file, không đổi cách nộp lô. Chỉ bỏ phần gõ tay và sửa tên.</p>
+      <div class="grid">
+        <div class="card">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+          <h3>iPhone làm camera, không cài gì thêm</h3>
+          <p>Nhấn Quét GCN trên Mac, camera mở ngay trên iPhone qua Continuity Camera. Lưu xong là bản quét về máy.</p>
+        </div>
+        <div class="card">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 12h8M8 9h4M8 15h6"/></svg></div>
+          <h3>Tự đặt tên theo số seri</h3>
+          <p>Đọc số seri trên bìa GCN rồi đặt tên <code>AB 123456-GCN.pdf</code>. Căn cước quét sau tự nhận cùng seri thành <code>-GT.pdf</code>.</p>
+        </div>
+        <div class="card">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <h3>Gom lô theo ngày, xuất một nút</h3>
+          <p>Lô dùng chung cả ngày, ví dụ <code>06.11.26</code>. Xuất ra thư mục PDF và ZIP phẳng đúng chuẩn đang nộp, có kiểm tra thiếu GT hay trùng seri.</p>
+        </div>
+        <div class="card">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 7 5h10l4 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9h18"/><path d="m9 14 2 2 4-4"/></svg></div>
+          <h3>Tự căn mép, xoay đúng chiều chữ</h3>
+          <p>Nhận chiều chữ từng trang và xoay trước khi hiển thị. Tìm mép giấy, bỏ viền nền, nắn trang nghiêng, giữ cả hai nửa GCN mở đôi.</p>
+        </div>
+        <div class="card">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+          <h3>Tải lên Google Drive một cú bấm</h3>
+          <p>Chọn thư mục Drive một lần. Từ đó mỗi lô xuất xong chỉ cần bấm Tải lên, app nhớ file nào đã lên để không gửi trùng.</p>
+        </div>
+        <div class="card">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Hồ sơ không rời khỏi máy</h3>
+          <p>Nhận dạng seri, căn mép, ghép PDF đều chạy trên máy. Không có máy chủ trung gian, không gửi ảnh hồ sơ đi đâu ngoài Drive bạn chọn.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>Ba bước cho một hồ sơ</h2>
+      <p class="sub">Tên file hiện ngay sau khi nhấn Lưu trên iPhone. Lặp lại cho hồ sơ tiếp theo.</p>
+      <div class="steps">
+        <div class="step"><h3>Quét GCN</h3><p>Nhấn <b>Quét GCN</b>. Quét bìa trước, rồi các mặt còn lại, nhấn Lưu trên iPhone. App đọc seri và đặt tên.</p></div>
+        <div class="step"><h3>Quét GT</h3><p>App tự chuyển sang bước căn cước. Nhấn <b>Quét GT</b>, quét, Lưu. File GT nhận cùng số seri.</p></div>
+        <div class="step"><h3>Xuất ngày</h3><p>Cuối buổi bấm <b>Xuất ngày</b> để có thư mục PDF và ZIP. Bấm <b>Tải lên</b> nếu nộp qua Google Drive.</p></div>
+      </div>
+      <div class="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        <span>Có máy quét phẳng hoặc ảnh sẵn? Dùng <b>Thêm GCN từ file…</b> hoặc <b>Hồ sơ mới từ file</b> với PDF, JPG, PNG, HEIC, TIFF. Có thể dựng iPhone cố định và dùng <b>Camera trên bàn</b>, bấm phím cách để chụp.</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <h2>Tải về</h2>
+      <p class="sub">Phiên bản <b data-version>1.0.26</b>. Bản Windows dựa trên cùng mã xử lý với bản Mac, mở được các lô Mac đã xuất.</p>
+      <div class="dl">
+        <div class="card">
+          <div class="head">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c0-2.3 1.9-3.4 1.98-3.45a4.4 4.4 0 0 0-3.37-1.83c-1.43-.15-2.8.84-3.52.84-.73 0-1.85-.82-3.05-.8a4.6 4.6 0 0 0-3.9 2.37c-1.66 2.88-.42 7.14 1.19 9.47.79 1.14 1.73 2.42 2.96 2.38 1.19-.05 1.64-.77 3.07-.77s1.84.77 3.1.74c1.28-.02 2.09-1.16 2.87-2.3a10 10 0 0 0 1.3-2.68c-.03-.01-2.63-1.02-2.63-3.97ZM14.1 5.8A4.1 4.1 0 0 0 15.04 2.8a4.2 4.2 0 0 0-2.75 1.42 3.9 3.9 0 0 0-.97 2.9c1.06.08 2.14-.54 2.78-1.32Z"/></svg>
+            <h3>macOS <small>Apple silicon · macOS 14 trở lên</small></h3>
+          </div>
+          <ul>
+            <li>iPhone làm camera qua Continuity Camera, kèm Camera trên bàn</li>
+            <li>Tải lên Google Drive từ trong app</li>
+            <li>Nút Cập nhật tự lấy bản mới</li>
+          </ul>
+          <div class="btns">
+            <a class="btn primary" data-dl="mac-dmg" href="#"><span>Bản cài (.dmg)</span><small data-size></small></a>
+            <a class="btn" data-dl="mac-zip" href="#"><span>Bản portable (.zip)</span><small data-size></small></a>
+          </div>
+          <div class="sha" data-sha="mac-zip"></div>
+        </div>
+        <div class="card">
+          <div class="head">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 11 4.4v7.1H3V5.5Zm0 13L11 19.6v-7H3v5.9Zm9-14.3L21 3v8.5h-9V4.2Zm0 8.3h9V21l-9-1.3v-7.2Z"/></svg>
+            <h3>Windows <small>x64 · Windows 10/11</small></h3>
+          </div>
+          <ul>
+            <li>Bộ cài đã kèm .NET, không cần cài thêm</li>
+            <li>Nhập lô từ Mac bằng ZIP hoặc thư mục PDF, sửa tên khi cần</li>
+            <li>Thêm từ file hoặc chụp bằng camera Windows nhận được</li>
+          </ul>
+          <div class="btns">
+            <a class="btn primary" data-dl="win-setup" href="#"><span>Bộ cài (-setup.exe)</span><small data-size></small></a>
+            <a class="btn" data-dl="win-zip" href="#"><span>Bản portable (.zip)</span><small data-size></small></a>
+          </div>
+          <div class="sha" data-sha="win-setup"></div>
+        </div>
+      </div>
+      <div class="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <span>Bản Windows đang ở giai đoạn thử và chưa ký số, Windows có thể hỏi xác nhận khi mở bộ cài. Trên Mac, lần đầu mở app sẽ hỏi quyền thư mục Documents vì lô xuất nằm trong <code>Documents/SmartDoc</code>.</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2>Hỏi đáp</h2>
+      <p class="sub">Những điều hay được hỏi trước khi cài.</p>
+      <details><summary>Có cần cài app lên iPhone không?</summary><p>Không. iPhone chỉ làm camera qua tính năng có sẵn của Apple. Hai máy cần đăng nhập cùng Apple Account có xác thực hai yếu tố, bật Wi-Fi và Bluetooth, để gần nhau.</p></details>
+      <details><summary>Đọc sai số seri thì sao?</summary><p>App luôn hiện seri đã đọc để bạn đối chiếu với bìa. Tiền tố một chữ và ảnh mờ sẽ yêu cầu xác nhận. Có thể gõ lại seri, app sửa tên trong thư viện và giữ bản nguồn.</p></details>
+      <details><summary>Tên file và cấu trúc lô có đổi so với CamScanner không?</summary><p>Không. Vẫn là <code>AB 123456-GCN.pdf</code>, <code>AB 123456-GT.pdf</code>, lô theo ngày và ZIP phẳng như đang nộp. App chỉ bỏ phần đặt tên tay.</p></details>
+      <details><summary>Dùng Windows thì mất gì so với Mac?</summary><p>Bản Windows không có camera iPhone qua Continuity và chưa có tải lên Google Drive trong app. Bạn vẫn quét bằng máy quét hoặc camera Windows, nhập lô từ Mac, sửa tên và xuất ngày như bình thường.</p></details>
+      <details><summary>Hồ sơ có bị gửi lên mạng không?</summary><p>Không. Nhận dạng seri, căn mép, ghép PDF chạy hoàn toàn trên máy. Chỉ khi bạn bấm Tải lên thì file xuất mới đi tới thư mục Google Drive bạn đã chọn.</p></details>
+      <details><summary>Cập nhật bản mới thế nào?</summary><p>Trên Mac mở app và bấm <b>Cập nhật</b>. Trên Windows tải bộ cài mới ở trang này và cài đè, thư viện hồ sơ được giữ nguyên.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 SmartDoc Scanner. Dùng nội bộ.</span>
+    <span><a href="downloads/quick-start.vi.md">Bắt đầu nhanh</a> · <a href="downloads/windows.vi.txt">Hướng dẫn Windows</a> · <a href="downloads/troubleshooting.vi.md">Xử lý sự cố</a></span>
+  </div>
+</footer>
+
+<script>
+  // ===== DOWNLOADS: sửa khối này mỗi lần lên bản mới =====
+  const RELEASE = {
+    version: "1.0.26",
+    base: "downloads/",   // thư mục chứa file tải về, cùng cấp với index.html
+    files: {
+      "mac-dmg":   { name: "SmartDocScanner-1.0.26-macos-arm64.dmg",          size: "2,4 MB" },
+      "mac-zip":   { name: "SmartDocScanner-1.0.26-macos-arm64-portable.zip", size: "1,9 MB",
+                     sha256: "55d2e60f54162166c1e869dd2971e455abcf44d0ab240745d4715273d017653c" },
+      "win-setup": { name: "SmartDocScanner-1.0.26-win-x64-setup.exe",        size: "" },
+      "win-zip":   { name: "SmartDocScanner-1.0.26-win-x64-portable.zip",     size: "" }
+    }
+  };
+  // ======================================================
+
+  document.querySelectorAll("[data-version]").forEach(el => el.textContent = RELEASE.version);
+  document.querySelectorAll("a[data-dl]").forEach(a => {
+    const f = RELEASE.files[a.dataset.dl];
+    if (!f) return;
+    if (a.closest("#download")) {
+      a.href = RELEASE.base + f.name;
+      a.setAttribute("download", f.name);
+      const s = a.querySelector("[data-size]");
+      if (s) s.textContent = f.size || "";
+    }
+  });
+  document.querySelectorAll("[data-sha]").forEach(el => {
+    const f = RELEASE.files[el.dataset.sha];
+    el.textContent = f && f.sha256 ? "SHA-256 " + f.sha256 : "";
+  });
+</script>
+</body>
+</html>
